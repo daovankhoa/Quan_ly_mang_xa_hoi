@@ -4,6 +4,7 @@ import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function HomePlaceholder() {
   const { user, loading, isAuthenticated, logout } = useAuth()
@@ -37,6 +38,9 @@ export default function App() {
       <Route path="/" element={<HomePlaceholder />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<HomePlaceholder />} />
+      </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
