@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
-import { createPost } from '../services/postApi'
+import { createPost, suggestMusic } from '../services/postApi'
 import { getErrorMessage } from '../services/api'
 import Avatar from './Avatar'
+import MusicPicker from './MusicPicker'
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 const MAX_SIZE = 5 * 1024 * 1024 // 5MB / ảnh
 const MAX_IMAGES = 10
 const MAX_CONTENT = 2000
+const MAX_AI_IMAGES = 3 // backend chỉ dùng 3 ảnh đầu để phân tích, gửi nhiều hơn là phí băng thông
 
 export default function CreatePost({ onCreated }) {
   const { user } = useAuth()
@@ -19,6 +21,10 @@ export default function CreatePost({ onCreated }) {
   const [posting, setPosting] = useState(false)
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState('')
+
+  const [music, setMusic] = useState(null) // bài nhạc đã chọn cho bài đăng
+  const [suggest, setSuggest] = useState(null) // null = đang đóng, ngược lại { loading, tracks, reason }
+  const suggestIdRef = useRef(0) // bỏ qua kết quả của lần gợi ý cũ nếu người dùng đã đóng hoặc gợi ý lại
 
   // Giải phóng URL xem trước khi component bị huỷ
   const itemsRef = useRef(items)
@@ -70,6 +76,36 @@ export default function CreatePost({ onCreated }) {
   }
 
   const canSubmit = !posting && (content.trim() || items.length > 0)
+  const canSuggest = !posting && !suggest?.loading && (content.trim() || items.length > 0)
+
+  const closeSuggest = () => {
+    suggestIdRef.current += 1
+    setSuggest(null)
+  }
+
+  const handleSuggest = async () => {
+    if (!canSuggest) return
+    const requestId = ++suggestIdRef.current
+    setError('')
+    setSuggest({ loading: true, tracks: [], reason: '' })
+    try {
+      const data = await suggestMusic({
+        content: content.trim(),
+        files: items.slice(0, MAX_AI_IMAGES).map((i) => i.file),
+      })
+      if (requestId !== suggestIdRef.current) return
+      setSuggest({ loading: false, tracks: data.tracks || [], reason: data.analysis?.reason || '' })
+    } catch (err) {
+      if (requestId !== suggestIdRef.current) return
+      setSuggest(null)
+      setError(getErrorMessage(err))
+    }
+  }
+
+  const handleSelectTrack = (track) => {
+    setMusic(track)
+    closeSuggest()
+  }
 
   const handleSubmit = async () => {
     if (!canSubmit) return
@@ -78,13 +114,15 @@ export default function CreatePost({ onCreated }) {
     setProgress(0)
     try {
       const data = await createPost(
-        { content: content.trim(), files: items.map((i) => i.file) },
+        { content: content.trim(), files: items.map((i) => i.file), musicTrackId: music?._id },
         (e) => e.total && setProgress(Math.round((e.loaded / e.total) * 100))
       )
       onCreated(data.post)
       items.forEach((i) => URL.revokeObjectURL(i.preview))
       setItems([])
       setContent('')
+      setMusic(null)
+      closeSuggest()
       if (textRef.current) textRef.current.style.height = 'auto'
     } catch (err) {
       setError(getErrorMessage(err))
@@ -131,6 +169,37 @@ export default function CreatePost({ onCreated }) {
         </div>
       )}
 
+      {music && (
+        <div className="music-chip">
+          <span className="music-chip-icon" aria-hidden="true">🎵</span>
+          <span className="music-chip-text">
+            <strong>{music.title}</strong> — {music.artist}
+          </span>
+          {!posting && (
+            <button
+              type="button"
+              className="music-chip-remove"
+              aria-label="Bỏ nhạc nền"
+              onClick={() => setMusic(null)}
+            >
+              ×
+            </button>
+          )}
+        </div>
+      )}
+
+      {suggest && (
+        <MusicPicker
+          loading={suggest.loading}
+          tracks={suggest.tracks}
+          reason={suggest.reason}
+          selectedId={music?._id}
+          onSelect={handleSelectTrack}
+          onRetry={handleSuggest}
+          onClose={closeSuggest}
+        />
+      )}
+
       {error && <div className="alert alert-error composer-alert">{error}</div>}
 
       {posting && (
@@ -140,22 +209,33 @@ export default function CreatePost({ onCreated }) {
       )}
 
       <div className="composer-footer">
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          multiple
-          hidden
-          onChange={handleFiles}
-        />
-        <button
-          type="button"
-          className="btn-ghost"
-          disabled={posting || items.length >= MAX_IMAGES}
-          onClick={() => fileRef.current?.click()}
-        >
-          🖼️ Ảnh{items.length > 0 && ` (${items.length}/${MAX_IMAGES})`}
-        </button>
+        <div className="composer-tools">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            hidden
+            onChange={handleFiles}
+          />
+          <button
+            type="button"
+            className="btn-ghost"
+            disabled={posting || items.length >= MAX_IMAGES}
+            onClick={() => fileRef.current?.click()}
+          >
+            🖼️ Ảnh{items.length > 0 && ` (${items.length}/${MAX_IMAGES})`}
+          </button>
+          <button
+            type="button"
+            className="btn-ghost"
+            disabled={!canSuggest}
+            title={canSuggest ? '' : 'Hãy thêm ảnh hoặc viết nội dung để AI gợi ý nhạc'}
+            onClick={handleSuggest}
+          >
+            🎵 Gợi ý nhạc
+          </button>
+        </div>
 
         <button
           type="button"

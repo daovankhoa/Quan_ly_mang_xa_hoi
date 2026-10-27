@@ -6,6 +6,8 @@ import CommentModel from '~/models/Comment.model'
 import { uploadImageBuffer, deleteImages } from '~/providers/cloudinaryProvider'
 import { USER_ROLES } from '~/utils/constants'
 import TrackModel from '~/models/Track.model'
+import { musicAiService } from '~/services/musicAiService'
+import { musicService } from '~/services/musicService'
 
 const AUTHOR_FIELDS = 'username displayName avatar'
 const DEFAULT_LIMIT = 10
@@ -23,6 +25,14 @@ const toPostDTO = (post, likedSet) => ({
   likedByMe: likedSet.has(String(post._id)),
   createdAt: post.createdAt,
 })
+
+// Bước 2 + 3: AI phân tích ảnh/nội dung -> khớp với kho nhạc -> trả về 3 bài gợi ý.
+// Không ghi gì vào DB: người dùng nghe thử, chọn bài rồi mới gửi musicTrackId khi đăng bài.
+const suggestMusic = async (files = [], { content } = {}) => {
+  const analysis = await musicAiService.analyzeMood({ files, content })
+  const tracks = await musicService.suggestTracks(analysis)
+  return { tracks, analysis }
+}
 
 const createPost = async (user, { content, musicTrackId }, files = []) => {
   const text = (content || '').trim()
@@ -161,4 +171,4 @@ const deletePost = async (user, postId) => {
   await deleteImages(post.images.map((i) => i.publicId)).catch(() => {})
 }
 
-export const postService = { createPost, getFeed, likePost, unlikePost, deletePost }
+export const postService = { createPost, suggestMusic, getFeed, likePost, unlikePost, deletePost }

@@ -6,6 +6,11 @@ const createPost = async (req, res) => {
   res.status(StatusCodes.CREATED).json({ message: 'Đăng bài thành công!', post })
 }
 
+const suggestMusic = async (req, res) => {
+  const data = await postService.suggestMusic(req.files, req.body)
+  res.status(StatusCodes.OK).json(data)
+}
+
 const getFeed = async (req, res) => {
   const data = await postService.getFeed(req.user._id, req.query)
   res.status(StatusCodes.OK).json(data)
@@ -26,4 +31,4 @@ const deletePost = async (req, res) => {
   res.status(StatusCodes.OK).json({ message: 'Đã xoá bài viết' })
 }
 
-export const postController = { createPost, getFeed, likePost, unlikePost, deletePost }
+export const postController = { createPost, suggestMusic, getFeed, likePost, unlikePost, deletePost }

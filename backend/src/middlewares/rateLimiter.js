@@ -33,3 +33,9 @@ export const createPostLimiter = createLimiter({
   limit: 30,
   message: 'Bạn đăng bài quá nhanh. Vui lòng thử lại sau ít phút.',
 })
+
+export const suggestMusicLimiter = createLimiter({
+  windowMs: 10 * 60 * 1000,
+  limit: 15,
+  message: 'Bạn gợi ý nhạc quá nhiều lần. Vui lòng thử lại sau ít phút.',
+})

@@ -3,7 +3,7 @@ import { postController } from '~/controllers/postController'
 import { commentController } from '~/controllers/commentController'
 import { isAuthenticated } from '~/middlewares/authMiddleware'
 import { uploadMultipleImages } from '~/middlewares/uploadMiddleware'
-import { createPostLimiter, createCommentLimiter } from '~/middlewares/rateLimiter'
+import { createPostLimiter, createCommentLimiter, suggestMusicLimiter } from '~/middlewares/rateLimiter'
 import { MAX_POST_IMAGES } from '~/models/Post.model'
 
 const Router = express.Router()
@@ -11,6 +11,14 @@ const Router = express.Router()
 Router.use(isAuthenticated)
 
 Router.get('/', postController.getFeed)
+
+// Gợi ý nhạc từ ảnh + nội dung (chưa lưu gì vào DB). Đặt trước các route /:id cho dễ đọc.
+Router.post(
+  '/suggest-music',
+  suggestMusicLimiter,
+  uploadMultipleImages('images', MAX_POST_IMAGES),
+  postController.suggestMusic
+)
 Router.post(
   '/',
   createPostLimiter,
