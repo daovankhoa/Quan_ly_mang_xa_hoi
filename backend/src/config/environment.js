@@ -31,6 +31,9 @@ export const env = {
   SMTP_USER: process.env.SMTP_USER || '',
   SMTP_PASS: process.env.SMTP_PASS || '',
   MAIL_FROM: process.env.MAIL_FROM || '"Social Manager" <no-reply@example.com>',
+
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+  GEMINI_MODEL:   process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
 }
 
 export const isProduction = env.BUILD_MODE === 'production'

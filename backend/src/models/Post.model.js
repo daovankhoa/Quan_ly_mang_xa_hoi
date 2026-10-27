@@ -14,6 +14,15 @@ const imageSchema = new mongoose.Schema(
   },
   { _id: false }
 )
+const musicSchema = new mongoose.Schema(
+  {
+    track:    { type: mongoose.Schema.Types.ObjectId, ref: 'Track', required: true },
+    title:    { type: String, required: true },
+    artist:   { type: String, required: true },
+    audioUrl: { type: String, required: true },
+  },
+  { _id: false }
+)
 
 const postSchema = new mongoose.Schema(
   {
@@ -29,6 +38,7 @@ const postSchema = new mongoose.Schema(
       maxlength: [MAX_POST_CONTENT, `Nội dung không được vượt quá ${MAX_POST_CONTENT} ký tự`],
     },
     images: { type: [imageSchema], default: [] },
+    music: { type: musicSchema, default: null },
 
     // Số liệu được lưu sẵn để load feed không phải đếm lại mỗi lần
     likesCount: { type: Number, default: 0, min: 0 },

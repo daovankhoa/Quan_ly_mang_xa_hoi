@@ -5,6 +5,7 @@ import LikeModel from '~/models/Like.model'
 import CommentModel from '~/models/Comment.model'
 import { uploadImageBuffer, deleteImages } from '~/providers/cloudinaryProvider'
 import { USER_ROLES } from '~/utils/constants'
+import TrackModel from '~/models/Track.model'
 
 const AUTHOR_FIELDS = 'username displayName avatar'
 const DEFAULT_LIMIT = 10
@@ -16,13 +17,14 @@ const toPostDTO = (post, likedSet) => ({
   author: post.author,
   content: post.content,
   images: post.images || [],
+  music: post.music || null,
   likesCount: post.likesCount,
   commentsCount: post.commentsCount || 0,
   likedByMe: likedSet.has(String(post._id)),
   createdAt: post.createdAt,
 })
 
-const createPost = async (user, { content }, files = []) => {
+const createPost = async (user, { content, musicTrackId }, files = []) => {
   const text = (content || '').trim()
 
   if (!text && files.length === 0) {
@@ -35,7 +37,14 @@ const createPost = async (user, { content }, files = []) => {
     throw new ApiError(422, `Chỉ được đăng tối đa ${MAX_POST_IMAGES} ảnh mỗi bài`)
   }
 
-  // Upload song song; nếu có ảnh lỗi thì dọn các ảnh đã lên để không bị mồ côi trên Cloudinary
+  let music = null
+  if (musicTrackId) {
+    if (!mongoose.isValidObjectId(musicTrackId)) throw new ApiError(422, 'Bài nhạc không hợp lệ')
+    const track = await TrackModel.findOne({ _id: musicTrackId, isActive: true }).lean()
+    if (!track) throw new ApiError(422, 'Bài nhạc không tồn tại hoặc đã bị gỡ')
+    music = { track: track._id, title: track.title, artist: track.artist, audioUrl: track.audioUrl }
+  }
+
   const settled = await Promise.allSettled(
     files.map((file) =>
       uploadImageBuffer(file.buffer, {
@@ -63,6 +72,7 @@ const createPost = async (user, { content }, files = []) => {
       width: u.width,
       height: u.height,
     })),
+    music,
   })
 
   const { _id, username, displayName, avatar } = user

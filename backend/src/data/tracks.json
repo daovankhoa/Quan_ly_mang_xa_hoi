@@ -1,0 +1,41 @@
+[
+  {
+    "title": "Bài mẫu 1 - THAY BẰNG BÀI THẬT",
+    "artist": "Tên nghệ sĩ",
+    "audioUrl": "https://res.cloudinary.com/<CLOUD_NAME>/video/upload/social/music/bai-mau-1.mp3",
+    "publicId": "social/music/bai-mau-1",
+    "duration": 120,
+    "moods": ["calm", "dreamy"],
+    "genres": ["lofi", "ambient"],
+    "energy": 2,
+    "license": "CC0",
+    "sourceUrl": "https://pixabay.com/music/",
+    "attribution": ""
+  },
+  {
+    "title": "Bài mẫu 2 - THAY BẰNG BÀI THẬT",
+    "artist": "Tên nghệ sĩ",
+    "audioUrl": "https://res.cloudinary.com/<CLOUD_NAME>/video/upload/social/music/bai-mau-2.mp3",
+    "publicId": "social/music/bai-mau-2",
+    "duration": 150,
+    "moods": ["happy", "playful"],
+    "genres": ["pop", "acoustic"],
+    "energy": 4,
+    "license": "CC0",
+    "sourceUrl": "https://pixabay.com/music/",
+    "attribution": ""
+  },
+  {
+    "title": "Bài mẫu 3 - THAY BẰNG BÀI THẬT",
+    "artist": "Tên nghệ sĩ",
+    "audioUrl": "https://res.cloudinary.com/<CLOUD_NAME>/video/upload/social/music/bai-mau-3.mp3",
+    "publicId": "social/music/bai-mau-3",
+    "duration": 180,
+    "moods": ["epic", "mysterious"],
+    "genres": ["cinematic"],
+    "energy": 5,
+    "license": "CC0",
+    "sourceUrl": "https://pixabay.com/music/",
+    "attribution": ""
+  }
+]

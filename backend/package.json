@@ -13,10 +13,13 @@
     "build-babel": "babel ./src -d ./build/src",
     "build": "npm run clean && npm run build-babel",
     "production": "npm run build && node ./build/src/server.js",
-    "dev": "nodemon --exec babel-node ./src/server.js"
+    "dev": "nodemon --exec babel-node ./src/server.js",
+    "seed:tracks": "babel-node ./src/scripts/seedTracks.js",
+    "test:music-ai": "babel-node ./src/scripts/testMusicAi.js"
   },
   "dependencies": {
     "@babel/runtime": "^7.22.10",
+    "@google/genai": "^2.31.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
     "cookie-parser": "^1.4.7",
