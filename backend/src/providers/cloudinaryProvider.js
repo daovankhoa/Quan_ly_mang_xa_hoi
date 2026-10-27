@@ -15,3 +15,8 @@ export const uploadImageBuffer = (buffer, options = {}) =>
     )
     stream.end(buffer)
   })
+
+export const deleteImages = async (publicIds = []) => {
+  if (!publicIds.length) return
+  await cloudinary.api.delete_resources(publicIds, { resource_type: 'image', invalidate: true })
+}

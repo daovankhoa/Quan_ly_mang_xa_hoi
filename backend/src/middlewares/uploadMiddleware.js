@@ -20,3 +20,15 @@ export const uploadSingleImage = (fieldName) => (req, res, next) =>
     }
     next(err)
   })
+
+export const uploadMultipleImages = (fieldName, maxCount) => (req, res, next) =>
+  upload.array(fieldName, maxCount)(req, res, (err) => {
+    if (!err) return next()
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return next(new ApiError(422, 'Mỗi ảnh không được vượt quá 5MB'))
+    }
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      return next(new ApiError(422, `Chỉ được đăng tối đa ${maxCount} ảnh mỗi bài`))
+    }
+    next(err)
+  })
