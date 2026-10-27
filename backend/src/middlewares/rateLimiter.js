@@ -22,6 +22,12 @@ export const forgotPasswordLimiter = createLimiter({
   message: 'Bạn yêu cầu đặt lại mật khẩu quá nhiều lần. Vui lòng thử lại sau 1 giờ.',
 })
 
+export const createCommentLimiter = createLimiter({
+  windowMs: 10 * 60 * 1000,
+  limit: 60,
+  message: 'Bạn bình luận quá nhanh. Vui lòng thử lại sau ít phút.',
+})
+
 export const createPostLimiter = createLimiter({
   windowMs: 10 * 60 * 1000,
   limit: 30,

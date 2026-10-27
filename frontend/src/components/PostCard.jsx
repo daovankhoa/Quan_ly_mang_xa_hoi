@@ -1,18 +1,20 @@
-import { memo, useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { deletePost, likePost, unlikePost } from '../services/postApi'
 import { getErrorMessage } from '../services/api'
 import { fullDate, timeAgo } from '../utils/timeAgo'
 import Avatar from './Avatar'
+import CommentSection from './CommentSection'
 import ImageGrid from './ImageGrid'
 import Lightbox from './Lightbox'
 
-const COLLAPSE_AT = 300 
+const COLLAPSE_AT = 300 // số ký tự trước khi hiện "Xem thêm"
 
 function PostCard({ post, onUpdate, onRemove }) {
   const { user } = useAuth()
   const [expanded, setExpanded] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(null)
+  const [commentsOpen, setCommentsOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
@@ -25,7 +27,7 @@ function PostCard({ post, onUpdate, onRemove }) {
     const wasLiked = post.likedByMe
     setBusy(true)
     setError('')
-    
+    // cập nhật ngay cho mượt, lỗi thì hoàn lại
     onUpdate(post._id, {
       likedByMe: !wasLiked,
       likesCount: Math.max(post.likesCount + (wasLiked ? -1 : 1), 0),
@@ -40,6 +42,13 @@ function PostCard({ post, onUpdate, onRemove }) {
       setBusy(false)
     }
   }
+
+  // delta > 0: thêm bình luận, < 0: xoá. Dùng dạng hàm để luôn tính trên số liệu mới nhất
+  const changeCommentsCount = useCallback(
+    (delta) =>
+      onUpdate(post._id, (p) => ({ commentsCount: Math.max((p.commentsCount || 0) + delta, 0) })),
+    [onUpdate, post._id]
+  )
 
   const handleDelete = async () => {
     if (!window.confirm('Bạn chắc chắn muốn xoá bài viết này?')) return
@@ -81,8 +90,15 @@ function PostCard({ post, onUpdate, onRemove }) {
 
       <ImageGrid images={post.images} onOpen={setLightboxIndex} />
 
-      {post.likesCount > 0 && (
-        <div className="post-stats">👍 {post.likesCount.toLocaleString('vi-VN')}</div>
+      {(post.likesCount > 0 || post.commentsCount > 0) && (
+        <div className="post-stats">
+          <span>{post.likesCount > 0 && `👍 ${post.likesCount.toLocaleString('vi-VN')}`}</span>
+          {post.commentsCount > 0 && (
+            <button type="button" className="link-btn" onClick={() => setCommentsOpen((v) => !v)}>
+              {post.commentsCount.toLocaleString('vi-VN')} bình luận
+            </button>
+          )}
+        </div>
       )}
 
       {error && <div className="alert alert-error post-alert">{error}</div>}
@@ -91,7 +107,15 @@ function PostCard({ post, onUpdate, onRemove }) {
         <button className={`action-btn ${post.likedByMe ? 'liked' : ''}`} onClick={toggleLike}>
           👍 {post.likedByMe ? 'Đã thích' : 'Thích'}
         </button>
+        <button
+          className={`action-btn ${commentsOpen ? 'active' : ''}`}
+          onClick={() => setCommentsOpen((v) => !v)}
+        >
+          💬 Bình luận
+        </button>
       </footer>
+
+      {commentsOpen && <CommentSection post={post} onCountChange={changeCommentsCount} />}
 
       {lightboxIndex !== null && (
         <Lightbox

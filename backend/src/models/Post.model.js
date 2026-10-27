@@ -32,6 +32,7 @@ const postSchema = new mongoose.Schema(
 
     // Số liệu được lưu sẵn để load feed không phải đếm lại mỗi lần
     likesCount: { type: Number, default: 0, min: 0 },
+    commentsCount: { type: Number, default: 0, min: 0 }, // gồm cả bình luận gốc lẫn trả lời
   },
   {
     timestamps: true,
@@ -39,7 +40,7 @@ const postSchema = new mongoose.Schema(
   }
 )
 
-// Phân trang feed theo _id giảm dần, và lấy bài theo tác giả (trang cá nhân sau này)
+
 postSchema.index({ author: 1, _id: -1 })
 
 postSchema.set('toJSON', {

@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import ApiError from '~/utils/ApiError'
 import PostModel, { MAX_POST_CONTENT, MAX_POST_IMAGES } from '~/models/Post.model'
 import LikeModel from '~/models/Like.model'
+import CommentModel from '~/models/Comment.model'
 import { uploadImageBuffer, deleteImages } from '~/providers/cloudinaryProvider'
 import { USER_ROLES } from '~/utils/constants'
 
@@ -9,13 +10,14 @@ const AUTHOR_FIELDS = 'username displayName avatar'
 const DEFAULT_LIMIT = 10
 const MAX_LIMIT = 20
 
-// Chuẩn hoá dữ liệu trả về cho client
+
 const toPostDTO = (post, likedSet) => ({
   _id: post._id,
   author: post.author,
   content: post.content,
   images: post.images || [],
   likesCount: post.likesCount,
+  commentsCount: post.commentsCount || 0,
   likedByMe: likedSet.has(String(post._id)),
   createdAt: post.createdAt,
 })
@@ -77,7 +79,7 @@ const getFeed = async (userId, { cursor, limit }) => {
     filter._id = { $lt: cursor }
   }
 
-  // lấy dư 1 bài để biết còn trang sau hay không
+
   const rows = await PostModel.find(filter)
     .sort({ _id: -1 })
     .limit(size + 1)
@@ -140,7 +142,11 @@ const deletePost = async (user, postId) => {
     throw new ApiError(403, 'Bạn không có quyền xoá bài viết này')
   }
 
-  await Promise.all([post.deleteOne(), LikeModel.deleteMany({ post: post._id })])
+  await Promise.all([
+    post.deleteOne(),
+    LikeModel.deleteMany({ post: post._id }),
+    CommentModel.deleteMany({ post: post._id }),
+  ])
 
   await deleteImages(post.images.map((i) => i.publicId)).catch(() => {})
 }

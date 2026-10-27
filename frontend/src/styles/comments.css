@@ -1,0 +1,119 @@
+/* Thống kê dưới bài: lượt thích bên trái, số bình luận bên phải */
+.post-stats { display: flex; align-items: center; justify-content: space-between; }
+.action-btn.active { color: #1877f2; }
+
+/* ===== Khu vực bình luận ===== */
+.cmt-section {
+  margin: 0 12px;
+  padding: 12px 0 14px;
+  border-top: 1px solid #e4e6eb;
+}
+.cmt-list { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.cmt-status { margin: 12px 0 0; text-align: center; color: #65676b; font-size: 0.9rem; }
+.cmt-error { margin-top: 6px; color: #b71c1c; font-size: 0.85rem; }
+.cmt-more {
+  margin: 10px 0 0 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #65676b;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cmt-section > .cmt-more { margin-left: 0; }
+.cmt-more:hover:not(:disabled) { text-decoration: underline; }
+.cmt-more:disabled { opacity: 0.6; cursor: default; }
+
+/* ===== Một bình luận ===== */
+.cmt-row { display: flex; gap: 8px; align-items: flex-start; }
+.cmt-row.is-deleting { opacity: 0.45; pointer-events: none; }
+.cmt-main { min-width: 0; }
+.cmt-bubble {
+  display: inline-block;
+  max-width: 100%;
+  padding: 8px 12px;
+  border-radius: 18px;
+  background: #f0f2f5;
+}
+.cmt-name { display: block; font-size: 0.85rem; }
+.cmt-text {
+  margin: 2px 0 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.cmt-mention { color: #1877f2; font-weight: 600; }
+.cmt-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 2px 0 0 12px;
+  font-size: 0.78rem;
+  color: #65676b;
+}
+.cmt-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cmt-link:hover { text-decoration: underline; }
+.cmt-link-danger:hover { color: #e53935; }
+
+/* Các trả lời thụt vào, có đường kẻ dọc nối với bình luận gốc */
+.cmt-replies {
+  margin: 6px 0 0 18px;
+  padding-left: 18px;
+  border-left: 2px solid #e4e6eb;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cmt-replies > .cmt-more { margin: 0; text-align: left; }
+
+/* ===== Ô nhập bình luận ===== */
+.cmt-input { display: flex; gap: 8px; align-items: flex-start; }
+.cmt-input-box { flex: 1; position: relative; }
+.cmt-input-box textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 36px;
+  max-height: 200px;
+  padding: 8px 40px 8px 14px;
+  border: none;
+  border-radius: 18px;
+  background: #f0f2f5;
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  resize: none;
+}
+.cmt-input-box textarea:focus { outline: 2px solid rgba(24, 119, 242, 0.35); }
+.cmt-send {
+  position: absolute;
+  right: 6px;
+  bottom: 5px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #1877f2;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.cmt-send:hover:not(:disabled) { background: rgba(24, 119, 242, 0.12); }
+.cmt-send:disabled { color: #bcc0c4; cursor: default; }
+.cmt-hint { margin: 4px 0 0 36px; color: #65676b; font-size: 0.78rem; }
+
+@media (max-width: 640px) {
+  .cmt-section { margin: 0 8px; }
+  .cmt-replies { margin-left: 10px; padding-left: 10px; }
+}
