@@ -5,8 +5,10 @@ import LoginPage from './pages/LoginPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import ProfilePage from './pages/ProfilePage'
 
 function HomePlaceholder() {
+  
   const { user, loading, isAuthenticated, logout } = useAuth()
 
   if (loading) return <p style={{ padding: 24 }}>Đang kiểm tra phiên đăng nhập...</p>
@@ -18,6 +20,7 @@ function HomePlaceholder() {
         <>
           <p>Xin chào <b>{user.displayName}</b> (@{user.username})</p>
           <pre>{JSON.stringify(user, null, 2)}</pre>
+          <Link to="/profile">Trang cá nhân</Link>{' '}
           <button onClick={logout}>Đăng xuất</button>
         </>
       ) : (
@@ -28,6 +31,7 @@ function HomePlaceholder() {
       )}
     </div>
   )
+  
 }
 
 export default function App() {
@@ -41,6 +45,7 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<HomePlaceholder />} />
       </Route>
+      <Route path="/profile" element={<ProfilePage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
