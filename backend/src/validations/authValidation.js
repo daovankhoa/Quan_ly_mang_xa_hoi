@@ -8,6 +8,13 @@ const MESSAGES = {
   'string.min':   '{#label} phải có ít nhất {#limit} ký tự',
   'string.max':   '{#label} không được vượt quá {#limit} ký tự',
   'string.email': '{#label} không đúng định dạng',
+  'string.uri':   '{#label} phải là đường dẫn hợp lệ',
+  'number.base':  '{#label} phải là số',
+  'number.min':   '{#label} không được nhỏ hơn {#limit}',
+  'number.max':   '{#label} không được lớn hơn {#limit}',
+  'boolean.base': '{#label} phải là true hoặc false',
+  'any.only':     '{#label} không hợp lệ',
+  'object.min':   'Cần ít nhất một trường để cập nhật',
 }
 
 const emailRule = Joi.string().trim().lowercase().email().required().label('Email')
@@ -36,7 +43,8 @@ const registerSchema = Joi.object({
 })
 
 const loginSchema = Joi.object({
-  email:    emailRule,
+  // Có thể là email hoặc tên đăng nhập (username)
+  email:    Joi.string().trim().lowercase().required().label('Email hoặc tên đăng nhập'),
   password: Joi.string().required().label('Mật khẩu'),
 })
 
@@ -49,7 +57,7 @@ const resetPasswordSchema = Joi.object({
   confirmPassword: confirmPasswordRule,
 })
 
-const validate = (schema) => (req, _res, next) => {
+export const validate = (schema) => (req, _res, next) => {
   const { error, value } = schema.validate(req.body, {
     abortEarly:   false,
     stripUnknown: true,

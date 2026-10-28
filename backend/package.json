@@ -15,6 +15,7 @@
     "production": "npm run build && node ./build/src/server.js",
     "dev": "nodemon --exec babel-node ./src/server.js",
     "seed:tracks": "babel-node ./src/scripts/seedTracks.js",
+    "seed:admin": "babel-node ./src/scripts/seedAdmin.js",
     "test:music-ai": "babel-node ./src/scripts/testMusicAi.js"
   },
   "dependencies": {

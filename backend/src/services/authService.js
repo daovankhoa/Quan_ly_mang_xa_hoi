@@ -50,7 +50,8 @@ const register = async ({ username, displayName, email, password }) => {
 }
 
 const login = async ({ email, password }, userAgent) => {
-  const user = await UserModel.findOne({ email }).select('+password')
+  // `email` có thể là email hoặc username
+  const user = await UserModel.findOne({ $or: [{ email }, { username: email }] }).select('+password')
   const isMatch = user ? await user.comparePassword(password) : false
 
   if (!isMatch) throw new ApiError(401, 'Email hoặc mật khẩu không đúng.')
